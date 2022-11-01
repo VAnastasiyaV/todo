@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 import Task from '../task';
-// const { default: Task } = await import('../task');
 import './task-list.css';
 
 export default class TaskList extends Component {

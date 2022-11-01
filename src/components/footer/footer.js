@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import TasksFilter from '../tasks-filter'
-// const { default: TasksFilter } = await import('../tasks-filter');
 import './footer.css';
 
 function Footer({
