@@ -7,28 +7,6 @@ import TaskList from '../task-list';
 import Footer from '../footer';
 
 export default class App extends Component {
-	static toggleProperty(arr, id, propName) {
-		const idx = arr.findIndex((el) => el.id === id);
-		const oldItem = arr[idx];
-		const newItem = { ...oldItem, [propName]: !oldItem[propName] };
-		return [
-			...arr.slice(0, idx),
-			newItem,
-			...arr.slice(idx + 1)]
-	}
-
-	static showItems = (arr, status1, status2) => {
-		const newArr = arr.map((el) => {
-			let newEl;
-			if (el.done) {
-				newEl = { ...el, filterAll: status1 }
-			} else {
-				newEl = { ...el, filterAll: status2 }
-			}
-			return newEl;
-		})
-		return newArr
-	}
 
 	maxId = 100;
 
@@ -140,6 +118,29 @@ export default class App extends Component {
 			taskData: this.showItems(taskData, false, true),
 		}))
 	};
+
+	showItems = (arr, status1, status2) => {
+		const newArr = arr.map((el) => {
+			let newEl;
+			if (el.done) {
+				newEl = { ...el, filterAll: status1 }
+			} else {
+				newEl = { ...el, filterAll: status2 }
+			}
+			return newEl;
+		})
+		return newArr
+	}
+
+	toggleProperty(arr, id, propName) {
+		const idx = arr.findIndex((el) => el.id === id);
+		const oldItem = arr[idx];
+		const newItem = { ...oldItem, [propName]: !oldItem[propName] };
+		return [
+			...arr.slice(0, idx),
+			newItem,
+			...arr.slice(idx + 1)]
+	}
 
 	updateTimer() {
 		this.setState(({ taskData }) => {
