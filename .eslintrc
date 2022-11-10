@@ -12,7 +12,6 @@
 		"plugin:import/recommended",
 		"plugin:jsx-a11y/recommended",
 		"plugin:react-hooks/recommended",
-		"plugin:vue/recommended",
 		"prettier"
 	],
 	"globals": {
