@@ -33,7 +33,8 @@ export default class TaskList extends Component {
 	render() {
 		const {
 			tasks, onDeleted, onToggleDone,
-			onEditClick,
+			onEditClick, toWorkClick, 
+			toStopClick,
 		} = this.props;
 
 		const elements = tasks.map((item) => {
@@ -64,6 +65,8 @@ export default class TaskList extends Component {
 						onDeleted={() => onDeleted(id)}
 						onToggleDone={() => onToggleDone(id)}
 						onEditClick={() => onEditClick(id)}
+						toWorkClick={() => toWorkClick(id) }
+						toStopClick={() => toStopClick(id) }
 					/>
 					<form onSubmit={this.onSubmit}>
 						<input

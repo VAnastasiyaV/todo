@@ -43,7 +43,8 @@ label .created {
 	color: gray;
 }
 
-label .description {
+label .title {
+	width: 220px;
 	word-break: break-all;
 	display: block;
 	line-height: 1.2;
@@ -52,13 +53,9 @@ label .description {
 	color: #4d4d4d;
 }
 
-div.completed label .description {
+div.completed label .title {
 	color: #cdcdcd;
 	text-decoration: line-through;
-}
-
-.icon:hover {
-	color: #af5b5e;
 }
 
 .icon-destroy {

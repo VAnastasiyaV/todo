@@ -16,10 +16,11 @@ export default class App extends Component {
 			this.createTaskItem('Editing task'),
 			this.createTaskItem('Active task'),
 		],
+		workTimerOn: false,
 	};
 
 	static defaultProps = {
-		updateInterval: 60000,
+		updateInterval: 1000,
 	}
 
 	static propTypes = {
@@ -37,9 +38,31 @@ export default class App extends Component {
 		this.timer = setInterval(() => this.updateTimer(), updateInterval)
 	}
 
+	componentDidUpdate(prevProps, prevState) {
+		const { workTimerOn } = this.state;
+		if (prevState.workTimerOn !== workTimerOn && workTimerOn) {
+			this.workTimer = setInterval(() => this.updateWorkTimer(), 1000)
+		};
+		if (prevState.workTimerOn !== workTimerOn && !workTimerOn) {
+			clearInterval(this.workTimer);
+			clearTimeout(this.taskTimer);
+		}
+	}
+
 	componentWillUnmount() {
 		clearInterval(this.timer);
+		clearInterval(this.workTimer);
+		clearTimeout(this.taskTimer);
 	}
+
+	onToggleWorkTimerOn = () => {
+		const newArr = this.state.taskData.filter((el) => el.inWorking === true);
+		if (!newArr.length) {
+			this.setState({workTimerOn: false})
+		} else {
+			this.setState({workTimerOn: true})
+		}
+	};
 
 	clearCompleted = () => {
 		this.setState(({ taskData }) => {
@@ -64,7 +87,6 @@ export default class App extends Component {
 
 	addItem = (text) => {
 		const newItem = this.createTaskItem(text)
-
 		this.setState(({ taskData }) => {
 			const newArray = [
 				...taskData,
@@ -76,17 +98,12 @@ export default class App extends Component {
 	}
 
 	editItem = (text, id) => {
-		this.setState(({ taskData }) => {
-			const idx = taskData.findIndex((el) => el.id === Number(id));
-			const newItem = { ...taskData[idx], label: text, edit: false };
-			const newArray = [
-				...taskData.slice(0, idx),
-				newItem,
-				...taskData.slice(idx + 1)];
-			return {
-				taskData: newArray,
-			}
-		})
+		this.setState(({ taskData }) => ({
+			taskData: this.ChangeProperty(taskData, id, 'edit', false ),
+		}));
+		this.setState(({ taskData }) => ({
+			taskData: this.ChangeProperty(taskData, id, 'label', text ),
+		}));
 	}
 
 	onToggleDone = (id) => {
@@ -132,6 +149,50 @@ export default class App extends Component {
 		return newArr
 	}
 
+	StartWorkTimer = (id) => {
+		this.setState(({ taskData }) => ({
+			taskData: this.ChangeProperty(taskData, id, 'inWorking', true ),
+		}));
+		this.taskTimer = setTimeout(() => {
+			this.onToggleWorkTimerOn();
+		  }, 0);
+	}
+	
+	stopWorkTimer = (id) => {
+		this.setState(({ taskData }) => ({
+			taskData: this.ChangeProperty(taskData, id, 'inWorking', false ),
+		}))
+	}
+	
+	updateWorkTimer() {
+		this.setState(({ taskData }) => {
+			const newArr = taskData.map((task) => {
+				let newTask;
+				const minutes = parseInt(task.timeInWork.minutes, 10);
+				const seconds = parseInt(task.timeInWork.seconds, 10);
+				if (task.inWorking) {
+					const workTimSec = (seconds < 60) 
+						? (seconds + 1)
+						: '00';
+					const workTimeMin = (seconds === 60) 
+						? (minutes + 1) 
+						: minutes;
+					newTask = { 
+						...task, 
+						timeInWork: {minutes: workTimeMin, 
+							seconds: workTimSec} 
+					}
+				} else {
+					newTask = task;
+				}
+				return newTask;
+			})
+			return {
+				taskData: newArr,
+			}
+		})
+	}
+
 	toggleProperty(arr, id, propName) {
 		const idx = arr.findIndex((el) => el.id === id);
 		const oldItem = arr[idx];
@@ -142,12 +203,20 @@ export default class App extends Component {
 			...arr.slice(idx + 1)]
 	}
 
+	ChangeProperty(arr, id, propName, value) {
+		const idx = arr.findIndex((el) => el.id === Number(id));
+		const newItem = { ...arr[idx], [propName]: value };
+		return [
+			...arr.slice(0, idx),
+			newItem,
+			...arr.slice(idx + 1)];
+	}
+	
 	updateTimer() {
 		this.setState(({ taskData }) => {
 			const newArr = taskData.map((el) => {
 				const updetingTime = formatDistanceToNow(
 					el.createdDate,
-					{ includeSeconds: true },
 				);
 				const newEl = { ...el, timeFromCreated: updetingTime };
 
@@ -172,6 +241,8 @@ export default class App extends Component {
 			done: false,
 			filterAll: false,
 			id: this.maxId++,
+			inWorking: false,
+			timeInWork: {minutes: '00', seconds: '00'},
 		}
 	}
 
@@ -189,6 +260,8 @@ export default class App extends Component {
 						onToggleDone={this.onToggleDone}
 						onEditClick={this.EditiongItem}
 						onItemEditiong={this.editItem}
+						toWorkClick={this.StartWorkTimer}
+						toStopClick={this.stopWorkTimer}
 					/>
 					<Footer
 						done={doneCount}

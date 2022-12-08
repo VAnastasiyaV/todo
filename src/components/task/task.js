@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 
+import Timer from '../timer';
 import './task.css';
 
 export default class Task extends Component {
@@ -21,6 +22,7 @@ export default class Task extends Component {
 		const {
 			label, timeFromCreated, onDeleted,
 			onToggleDone, done, onEditClick,
+			toWorkClick, toStopClick, ...itemProps
 		} = this.props;
 
 		let classNames = 'view';
@@ -37,11 +39,17 @@ export default class Task extends Component {
 					onChange={onToggleDone}
 				/>
 				<label>
-					<span className="description">
+					<span className="title">
 						{label}
 					</span>
+					< Timer 
+						{...itemProps}
+						toWorkClick={() => toWorkClick() }
+						toStopClick={() => toStopClick() } 
+					/>
 					<span className="created">
 						created
+						{' '}
 						{timeFromCreated}
 						{' '}
 						ago
