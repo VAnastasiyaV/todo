@@ -160,13 +160,11 @@ export default class App extends Component {
 		return newArr
 	}
 
-	StartWorkTimer = (id) => {
+	StartWorkTimer = (e, id) => {
+		// console.log(e.target);
 		const idx = this.state.taskData.findIndex((el) => el.id === Number(id));
 		if (this.state.taskData[idx].timeInWork.minutes === 0 
 			&& this.state.taskData[idx].timeInWork.seconds === 0) return;
-
-		// timeInWork: {minutes: min, seconds: sec},
-		// const newItem = { ...arr[idx], [propName]: value };
 		this.setState(({ taskData }) => ({
 			taskData: this.ChangeProperty(taskData, id, 'inWorking', true ),
 		}));
@@ -196,9 +194,11 @@ export default class App extends Component {
 					const workTimSec = (seconds > 0) 
 						? (seconds - 1)
 						: '59';
-					const workTimeMin = (seconds === 0 && minutes > 0) 
-						? (minutes - 1) 
-						: (minutes >= 0) ? minutes : 0;
+					let workTimeMin; 
+					if(seconds === 0 && minutes > 0) workTimeMin = (minutes - 1);
+					else {
+						workTimeMin = (minutes > 0) ? minutes : 0;
+					}
 					newTask = { 
 						...task, 
 						timeInWork: {minutes: workTimeMin, 

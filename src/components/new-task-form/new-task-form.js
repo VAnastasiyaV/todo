@@ -11,20 +11,14 @@ export default class NewTaskForm extends Component {
 
 	handleInputChange = (e) => {
 		const name = e.target.name;
-		// if (name === 'seconds' && ) {}
 		this.setState({
 			[name]: e.target.value,
 		})
 	}
 
-// www = (e) => {
-// 	e.target.setCustomValidity('Username')
-// }
-
 	handleKeyDown = (e) => {
 		const { label, minutes, seconds } = this.state;
-		if (e.code === 'Enter') 
-        {
+		if (e.code === 'Enter') {
 			if (Math.round(minutes)/minutes !== 1 
 				|| minutes > 99
 				|| minutes < 0 
@@ -37,29 +31,21 @@ export default class NewTaskForm extends Component {
 				return (
 					this.setState({
 						dataWrong: true,
-					}),
-					console.log(minutes,seconds,label))
+					}))
 			}
-            e.preventDefault();
-			// console.log(this.state.dataWrong)
+			e.preventDefault();
 			this.props.onItemAdded(label,minutes,seconds);
-			this.setState({
-				label: '',
-				minutes: '',
-				seconds: '',
-				dataWrong: false,
-			})
-        } 
-		// e.preventDefault();
-		// this.props.onItemAdded(this.state.label);
-		// this.setState({
-		// 	label: '',
-		// })
-		
+			return ( 
+				this.setState({
+					label: '',
+					minutes: '',
+					seconds: '',
+					dataWrong: false,
+				}))
+		} return undefined;
 	}
 
 	handleClickOutside = (e) => {
-		console.log(e);
 		if (e.target.name !== "label"
 			&& e.target.name !== "minutes"
 			&& e.target.name !== "seconds") {
@@ -72,20 +58,14 @@ export default class NewTaskForm extends Component {
 		}
 	}
 
-	// onSubmit = (e) => {
-	// 	e.preventDefault();
-		// this.props.onItemAdded(this.state.label);
-		// this.setState({
-		// 	label: '',
-		// })
-	// 	console.log('ok')
-	// }
-
 	render() {
 		const ErMessage = this.state.dataWrong 
 						  ? <div className='new-todo-form__data-wrong'>
-								All fields should be fill. Field "min" should only contain whole numbers from 0 till 99.  Field "sec" should only contain whole numbers from 0 till 59.  
-							</div>
+							All fields should be fill. Field 
+							`&#34;`min`&#34;` should only
+							contain whole numbers from 0 till 99.  Field `&#34;`sec`&#34;` should 
+							only contain whole numbers from 0 till 59.  
+						  </div>
 						  : null;
 
 		document.addEventListener("mousedown", this.handleClickOutside);
@@ -121,8 +101,8 @@ export default class NewTaskForm extends Component {
 						min="0"
 						max="99"
 						step='1'
-						/>
-          			<input 
+					/>
+					<input 
 						type="number"
 						name='seconds'
 						className="new-todo-form__timer" 
@@ -133,7 +113,7 @@ export default class NewTaskForm extends Component {
 						min="0"
 						max="59"
 						step='1'
-						/>
+					/>
 				</form>
 			</header>
 		);

@@ -37,7 +37,7 @@ export default class TaskList extends Component {
 	cancelLabelChange = () => {
 		this.setState({
 			label: '',
-			idI: this.props.onEditiong
+			idI: ''
 		});
 		this.props.onItemEditiong(false, this.props.onEditiong)
 	}
@@ -49,8 +49,10 @@ export default class TaskList extends Component {
 	}
 
 	onSubmit = (e) => {
+		const {label, idI} = this.state;
 		e.preventDefault();
-		this.props.onItemEditiong(this.state.label, this.state.idI);
+		if(idI === '') {return this.cancelLabelChange();}
+		return this.props.onItemEditiong(label, idI);
 	}
 
 	render() {
@@ -95,7 +97,7 @@ export default class TaskList extends Component {
 						onDeleted={() => onDeleted(id)}
 						onToggleDone={() => onToggleDone(id)}
 						onEditClick={() => onEditClick(id)}
-						toWorkClick={() => toWorkClick(id) }
+						toWorkClick={(e) => toWorkClick(e, id) }
 						toStopClick={() => toStopClick(id) }
 					/>
 					<form onSubmit={this.onSubmit}>
