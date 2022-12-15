@@ -12,15 +12,16 @@ export default class App extends Component {
 
 	state = {
 		taskData: [
-			this.createTaskItem('Completed task'),
-			this.createTaskItem('Editing task'),
-			this.createTaskItem('Active task'),
+			this.createTaskItem('Completed task',1,1),
+			this.createTaskItem('Editing task',0,2),
+			this.createTaskItem('Active task',0,0),
 		],
 		workTimerOn: false,
+		onEdition: false
 	};
 
 	static defaultProps = {
-		updateInterval: 1000,
+		updateInterval: 60000,
 	}
 
 	static propTypes = {
@@ -85,8 +86,8 @@ export default class App extends Component {
 		})
 	}
 
-	addItem = (text) => {
-		const newItem = this.createTaskItem(text)
+	addItem = (text, min, sec) => {
+		const newItem = this.createTaskItem(text, min, sec)
 		this.setState(({ taskData }) => {
 			const newArray = [
 				...taskData,
@@ -98,12 +99,19 @@ export default class App extends Component {
 	}
 
 	editItem = (text, id) => {
+		
 		this.setState(({ taskData }) => ({
 			taskData: this.ChangeProperty(taskData, id, 'edit', false ),
 		}));
-		this.setState(({ taskData }) => ({
-			taskData: this.ChangeProperty(taskData, id, 'label', text ),
-		}));
+		if (text) {
+			this.setState(({ taskData }) => ({
+				taskData: this.ChangeProperty(taskData, id, 'label', text ),
+			}));
+			this.setState(({ taskData }) => ({
+				taskData: this.ChangeProperty(taskData, id, 'forInp', text ),
+			}))
+		};		
+		this.setState({ onEdition: false })
 	}
 
 	onToggleDone = (id) => {
@@ -113,9 +121,12 @@ export default class App extends Component {
 	};
 
 	EditiongItem = (id) => {
-		this.setState(({ taskData }) => ({
-			taskData: this.toggleProperty(taskData, id, 'edit'),
-		}))
+		if (!this.state.onEdition) {
+			this.setState(({ taskData }) => ({
+				taskData: this.toggleProperty(taskData, id, 'edit'),
+			}));
+			this.setState({ onEdition: id })
+		}
 	};
 
 	showAll = () => {
@@ -150,6 +161,12 @@ export default class App extends Component {
 	}
 
 	StartWorkTimer = (id) => {
+		const idx = this.state.taskData.findIndex((el) => el.id === Number(id));
+		if (this.state.taskData[idx].timeInWork.minutes === 0 
+			&& this.state.taskData[idx].timeInWork.seconds === 0) return;
+
+		// timeInWork: {minutes: min, seconds: sec},
+		// const newItem = { ...arr[idx], [propName]: value };
 		this.setState(({ taskData }) => ({
 			taskData: this.ChangeProperty(taskData, id, 'inWorking', true ),
 		}));
@@ -170,13 +187,18 @@ export default class App extends Component {
 				let newTask;
 				const minutes = parseInt(task.timeInWork.minutes, 10);
 				const seconds = parseInt(task.timeInWork.seconds, 10);
-				if (task.inWorking) {
-					const workTimSec = (seconds < 60) 
-						? (seconds + 1)
-						: '00';
-					const workTimeMin = (seconds === 60) 
-						? (minutes + 1) 
-						: minutes;
+				if (minutes === 0 && seconds === 0) {
+					newTask = { 
+						...task, 
+						inWorking: false 
+					} 
+				} else if (task.inWorking) {
+					const workTimSec = (seconds > 0) 
+						? (seconds - 1)
+						: '59';
+					const workTimeMin = (seconds === 0 && minutes > 0) 
+						? (minutes - 1) 
+						: (minutes >= 0) ? minutes : 0;
 					newTask = { 
 						...task, 
 						timeInWork: {minutes: workTimeMin, 
@@ -194,7 +216,7 @@ export default class App extends Component {
 	}
 
 	toggleProperty(arr, id, propName) {
-		const idx = arr.findIndex((el) => el.id === id);
+		const idx = arr.findIndex((el) => el.id === Number(id));
 		const oldItem = arr[idx];
 		const newItem = { ...oldItem, [propName]: !oldItem[propName] };
 		return [
@@ -228,7 +250,7 @@ export default class App extends Component {
 		})
 	}
 
-	createTaskItem(label) {
+	createTaskItem(label, min, sec) {
 		return {
 			label,
 			forInp: label,
@@ -242,19 +264,21 @@ export default class App extends Component {
 			filterAll: false,
 			id: this.maxId++,
 			inWorking: false,
-			timeInWork: {minutes: '00', seconds: '00'},
+			timeInWork: {minutes: min, seconds: sec},
 		}
 	}
 
 	render() {
-		const { taskData } = this.state;
+		const { taskData, onEdition } = this.state;
 		const doneCount = taskData
 			.filter((el) => el.done).length;
+			
 		return (
 			<section className="todoapp">
 				<NewTaskForm onItemAdded={this.addItem} />
 				<section className="main">
 					<TaskList
+						onEditiong={onEdition}
 						tasks={taskData}
 						onDeleted={this.deleteItem}
 						onToggleDone={this.onToggleDone}

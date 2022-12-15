@@ -65,6 +65,18 @@
 		"react/static-property-placement": [
 			"off"
 		],
+		"jsx-a11y/no-noninteractive-element-interactions": [
+			"error",
+			{
+			  "handlers": [
+				"onClick",
+				"onMouseDown",
+				"onMouseUp",
+				"onKeyPress",
+				"onKeyUp"
+			  ]
+			}
+		  ],
 		"react/destructuring-assignment": "off",
 		"jsx-a11y/no-autofocus": 0,
 		"react/jsx-props-no-spreading": 0,

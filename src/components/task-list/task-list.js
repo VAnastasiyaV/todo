@@ -4,6 +4,7 @@ import Task from '../task';
 import './task-list.css';
 
 export default class TaskList extends Component {
+
 	state = {
 		label: '',
 		idI: '',
@@ -14,8 +15,10 @@ export default class TaskList extends Component {
 		filterAll: false,
 	}
 
-	componentDidMount() {
-		this.nameInput.focus();
+	componentDidUpdate(prevProps) {
+		if(prevProps.onEditiong !== this.props.onEditiong && Boolean(this.props.onEditiong)) {
+			this.nameInput.focus();
+		}
 	}
 
 	onLabelChange = (e) => {
@@ -23,6 +26,26 @@ export default class TaskList extends Component {
 			label: e.target.value,
 			idI: e.target.id,
 		})
+	}
+
+	handleKeyDown = (e) => {
+		if (e.keyCode === 27) {
+			this.cancelLabelChange()
+		}
+	  };
+
+	cancelLabelChange = () => {
+		this.setState({
+			label: '',
+			idI: this.props.onEditiong
+		});
+		this.props.onItemEditiong(false, this.props.onEditiong)
+	}
+
+	handleClickOutside = (e) => {		
+		if (Number(e.target.id) !== Number(this.props.onEditiong)) {
+			this.cancelLabelChange()
+		}
 	}
 
 	onSubmit = (e) => {
@@ -34,13 +57,19 @@ export default class TaskList extends Component {
 		const {
 			tasks, onDeleted, onToggleDone,
 			onEditClick, toWorkClick, 
-			toStopClick,
+			toStopClick, 
 		} = this.props;
+
+		if (tasks.length === 0) {
+			return <div key="1" className='empty'><p>No task found</p></div>
+		}
 
 		const elements = tasks.map((item) => {
 			const {
 				id, edit, forInp, filterAll, ...itemProps
 			} = item;
+			
+			document.addEventListener("mousedown", this.handleClickOutside);
 
 			let classNameInp = 'hidden';
 			let classNameLi = '';
@@ -49,6 +78,7 @@ export default class TaskList extends Component {
 			if (this.state.label === '') {
 				labelInp = forInp
 			} else labelInp = this.state.label;
+
 			if (edit) {
 				classNameLi = 'editing';
 				classNameInp = 'edit';
@@ -74,8 +104,12 @@ export default class TaskList extends Component {
 							id={id}
 							className={classNameInp}
 							onChange={this.onLabelChange}
+							onKeyDown={this.handleKeyDown}
 							value={labelInp}
-							ref={(input) => { this.nameInput = input; }}
+							ref={edit 
+								? ((input) => { this.nameInput = input;}) 
+								: (() => {}) }
+							required
 						/>
 					</form>
 				</li>
@@ -85,7 +119,7 @@ export default class TaskList extends Component {
 		return (
 			<ul className="todo-list">
 				{ elements }
-			</ul>
+			</ul> 		
 		);
 	}
 }

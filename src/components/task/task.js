@@ -44,8 +44,8 @@ export default class Task extends Component {
 					</span>
 					< Timer 
 						{...itemProps}
-						toWorkClick={() => toWorkClick() }
-						toStopClick={() => toStopClick() } 
+						toWorkClick={toWorkClick}
+						toStopClick={toStopClick} 
 					/>
 					<span className="created">
 						created
