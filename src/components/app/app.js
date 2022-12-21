@@ -56,7 +56,7 @@ export default class App extends Component {
 		clearTimeout(this.taskTimer);
 	}
 
-	onToggleWorkTimerOn = () => {
+	timerOn = () => {
 		const newArr = this.state.taskData.filter((el) => el.inWorking === true);
 		if (!newArr.length) {
 			this.setState({workTimerOn: false})
@@ -169,7 +169,7 @@ export default class App extends Component {
 			taskData: this.ChangeProperty(taskData, id, 'inWorking', true ),
 		}));
 		this.taskTimer = setTimeout(() => {
-			this.onToggleWorkTimerOn();
+			this.timerOn();
 		  }, 0);
 	}
 	

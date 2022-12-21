@@ -33,28 +33,30 @@ export default class Task extends Component {
 
 		return (
 			<div className={classNames}>
-				<input
-					className="toggle"
-					type="checkbox"
-					onChange={onToggleDone}
-				/>
 				<label>
+					<input
+						className="toggle"
+						type="checkbox"
+						onChange={onToggleDone}
+					/>
+				
 					<span className="title">
 						{label}
 					</span>
-					< Timer 
-						{...itemProps}
-						toWorkClick={toWorkClick}
-						toStopClick={toStopClick} 
-					/>
-					<span className="created">
-						created
-						{' '}
-						{timeFromCreated}
-						{' '}
-						ago
-					</span>
 				</label>
+				< Timer 
+					{...itemProps}
+					toWorkClick={toWorkClick}
+					toStopClick={toStopClick} 
+				/>
+				<span className="created">
+					created
+					{' '}
+					{timeFromCreated}
+					{' '}
+					ago
+				</span>
+				
 				<button
 					type="button"
 					className="icon icon-edit"

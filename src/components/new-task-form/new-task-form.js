@@ -18,23 +18,30 @@ export default class NewTaskForm extends Component {
 
 	handleKeyDown = (e) => {
 		const { label, minutes, seconds } = this.state;
+		let min = 0;
+		let sec = 0;
 		if (e.code === 'Enter') {
-			if (Math.round(minutes)/minutes !== 1 
-				|| minutes > 99
-				|| minutes < 0 
-				|| label === ''
-				|| seconds === '' 
-				|| minutes === ''
-				|| Math.round(seconds)/seconds !== 1 
-				|| seconds > 59 
-				|| seconds < 0 ) {
+
+			if (minutes <= 0 || minutes === '') {
+				min = 0;
+			} else { 
+				min = minutes > 99 ? 99 : Math.round(minutes) 
+			};
+
+			if (seconds <= 0 || seconds === '') {
+				sec = 0;
+			} else { 
+				sec = seconds > 59 ? 59 : Math.round(seconds) 
+			};
+			if (label === '') {
 				return (
 					this.setState({
 						dataWrong: true,
 					}))
 			}
+
 			e.preventDefault();
-			this.props.onItemAdded(label,minutes,seconds);
+			this.props.onItemAdded(label,min,sec);
 			return ( 
 				this.setState({
 					label: '',
@@ -45,27 +52,12 @@ export default class NewTaskForm extends Component {
 		} return undefined;
 	}
 
-	handleClickOutside = (e) => {
-		if (e.target.name !== "label"
-			&& e.target.name !== "minutes"
-			&& e.target.name !== "seconds") {
-			this.setState({
-				label: '',
-				minutes: '',
-				seconds: '',
-				dataWrong: false,
-			})
-		}
-	}
-
 	render() {
-		const ErMessage = this.state.dataWrong 
-						  ? <div className='new-todo-form__data-wrong'>
-							All fields should be fill. Field 
-							`&#34;`min`&#34;` should only
-							contain whole numbers from 0 till 99.  Field `&#34;`sec`&#34;` should 
-							only contain whole numbers from 0 till 59.  
-						  </div>
+		const ErMessage = this.state.dataWrong ?
+			/* eslint-disable react/no-unescaped-entities */
+			<div className='new-todo-form__data-wrong'>
+				The field 'What needs to be done?' should be fill.
+			</div>
 						  : null;
 
 		document.addEventListener("mousedown", this.handleClickOutside);

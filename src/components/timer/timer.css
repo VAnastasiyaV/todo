@@ -19,3 +19,9 @@
 .todo-list li .icon-play:after {
 	content: '▶';
 }
+
+
+.todo-list li div .description {
+    font-size: 13px;
+    color: grey;
+}

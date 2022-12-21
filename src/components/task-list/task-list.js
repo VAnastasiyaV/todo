@@ -52,7 +52,12 @@ export default class TaskList extends Component {
 		const {label, idI} = this.state;
 		e.preventDefault();
 		if(idI === '') {return this.cancelLabelChange();}
-		return this.props.onItemEditiong(label, idI);
+		this.props.onItemEditiong(label, idI);
+		return this.setState({
+			label: '',
+			idI: ''
+		});
+		
 	}
 
 	render() {
