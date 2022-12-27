@@ -85,14 +85,14 @@ export default class App extends Component {
 
         if (text) {
             this.setState(({ taskData }) => ({
-                taskData: this.ChangeProperty(taskData, id, 'label', text ),
-                taskData: this.ChangeProperty(taskData, id, 'forInp', text ),
+                taskData: this.ChangeProperty(taskData, id, 'label', text).ChangeProperty(taskData, id, 'forInp', text)
+                // taskData: this.ChangeProperty(taskData, id, 'forInp', text ),
             }))
         };	
 
-		this.setState(({ taskData }) => ({
+        this.setState(({ taskData }) => ({
             taskData: this.ChangeProperty(taskData, id, 'edit', false ),
-			onEdition: false }))
+            onEdition: false }))
     }
 
     onToggleDone = (id) => {
@@ -162,31 +162,34 @@ export default class App extends Component {
     updateWorkTimer() {
         this.setState(({ taskData }) => {
             const newArr = taskData.map((task) => {
-				if (minutes === 0 && seconds === 0) {
+                const minutes = task.timeInWork.minutes;
+                const seconds = task.timeInWork.seconds;
+                let newTask = [];
+                if (minutes === 0 && seconds === 0) {
                     newTask = { 
                         ...task, 
                         inWorking: false 
                     } 
                 } else if (task.inWorking) {
-				let d = new Date('01 January 00:00:00');
-				d.setMinutes(task.timeInWork.minutes, task.timeInWork.seconds); 
-				let date = new Date(d.getTime() - 1);
-				newTask = { 
-					...task, 
-					timeInWork: {minutes: date.getMinutes, 
-						seconds: date.getSeconds} 
-				}
-			} else {
-				newTask = task;
-			}
-			return newTask;
-		})
+                    const d = new Date('01 January 00:00:00');
+                    d.setMinutes(minutes, seconds); 
+                    const date = new Date(d.getTime() - 1);
+                    newTask = { 
+                        ...task, 
+                        timeInWork: {minutes: date.getMinutes, 
+                            seconds: date.getSeconds} 
+                    }
+                } else {
+                    newTask = task;
+                }
+                return newTask;
+            })
 
-		return {
-			taskData: newArr,
-		}
-	})
-}
+            return {
+                taskData: newArr,
+            }
+        })
+    }
 
     toggleProperty(arr, id, propName) {
         const idx = arr.findIndex((el) => el.id === Number(id));
@@ -279,10 +282,10 @@ App.defaultProps = {
 
 App.propTypes = {  
     updateInterval: (props, propName, componentName) => {
-		const value = props[propName];
-		if (typeof value === 'number' && !Number.isNaN(Number(value))) {
-			return null;
-		}
-		return new Error(`${componentName}: ${propName} must be a number`)
-	},
+        const value = props[propName];
+        if (typeof value === 'number' && !Number.isNaN(Number(value))) {
+            return null;
+        }
+        return new Error(`${componentName}: ${propName} must be a number`)
+    },
 };
