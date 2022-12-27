@@ -36,18 +36,16 @@
 		"no-tabs": "off",
 		"no-alert": "off",
 		"prefer-destructuring": "off",
-		"indent": [
-			2,
-			"tab"
+		"indent": [2, 4
 		],
 		"react/prop-types": 0,
 		"react/jsx-indent": [
 			2,
-			"tab"
+			4
 		],
 		"react/jsx-indent-props": [
 			2,
-			"tab"
+			4
 		],
 		"no-param-reassign": "off",
 		"react/jsx-filename-extension": [
