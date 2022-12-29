@@ -82,12 +82,18 @@ export default class App extends Component {
     }
 
     editItem = (text, id) => {
-
         if (text) {
-            this.setState(({ taskData }) => ({
-                taskData: this.ChangeProperty(taskData, id, 'label', text).ChangeProperty(taskData, id, 'forInp', text)
-                // taskData: this.ChangeProperty(taskData, id, 'forInp', text ),
-            }))
+            this.setState(({ taskData }) => {
+                const idx = taskData.findIndex((el) => el.id === Number(id));
+                const newItem = { ...taskData[idx], 'label': text, 'forInp': text };
+                const newArray = [
+                    ...taskData.slice(0, idx),
+                    newItem,
+                    ...taskData.slice(idx + 1)];
+                return {
+                    taskData: newArray,
+                }
+            })
         };	
 
         this.setState(({ taskData }) => ({
@@ -176,8 +182,8 @@ export default class App extends Component {
                     const date = new Date(d.getTime() - 1);
                     newTask = { 
                         ...task, 
-                        timeInWork: {minutes: date.getMinutes, 
-                            seconds: date.getSeconds} 
+                        timeInWork: {minutes: date.getMinutes(), 
+                            seconds: date.getSeconds()} 
                     }
                 } else {
                     newTask = task;
