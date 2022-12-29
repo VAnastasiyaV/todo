@@ -171,7 +171,7 @@ export default class App extends Component {
                 const minutes = task.timeInWork.minutes;
                 const seconds = task.timeInWork.seconds;
                 let newTask = [];
-                if (minutes === 0 && seconds === 0) {
+                if (minutes === '00' && seconds === '00') {
                     newTask = { 
                         ...task, 
                         inWorking: false 
@@ -182,8 +182,8 @@ export default class App extends Component {
                     const date = new Date(d.getTime() - 1);
                     newTask = { 
                         ...task, 
-                        timeInWork: {minutes: date.getMinutes(), 
-                            seconds: date.getSeconds()} 
+                        timeInWork: {minutes: date.getMinutes().toString().padStart(2, "0"), 
+                            seconds: date.getSeconds().toString().padStart(2, "0")} 
                     }
                 } else {
                     newTask = task;
