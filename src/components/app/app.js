@@ -11,7 +11,7 @@ function App({ updateInterval }) {
     const timerRef = useRef();
     let taskTimer = null;
 
-    const createTaskItem = (label, min, sec) => ({
+    const createTaskItem = (label, min, sec, newId) => ({
         label,
         forInp: label,
         createdDate: new Date(),
@@ -22,16 +22,16 @@ function App({ updateInterval }) {
         edit: false,
         done: false,
         filterAll: false,
-        id: Number(Math.ceil(Math.random() * 100000).toString().slice(2, )),
+        id: newId + 1,
         inWorking: false,
         timeInWork: {minutes: min, seconds: sec},
     })    
 
     const [todos, setTodos] = useState({
         taskData: [
-            createTaskItem('Completed task',1,1),
-            createTaskItem('Editing task',0,2),
-            createTaskItem('Active task',0,0),
+            createTaskItem('Completed task',1,1,100),
+            createTaskItem('Editing task',0,2, 101),
+            createTaskItem('Active task',0,0,102),
         ],
         workTimerOn: false,
         onEdition: false
@@ -44,6 +44,7 @@ function App({ updateInterval }) {
             
         };
         return () => clearInterval(workTimer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [todos.workTimerOn]);
 
     const startTimer = useCallback(() => {
@@ -85,7 +86,6 @@ function App({ updateInterval }) {
                 return ({...todos, workTimerOn: false})
             } 
             return ({...todos, workTimerOn: true})
-            
         })
     };
 
@@ -99,12 +99,14 @@ function App({ updateInterval }) {
             const newArr = todos.taskData.filter((el) => el.id !== id)
             return {...todos, taskData: newArr}
         })
-        
     }
 
     const addItem = (text, min, sec) => {
-        setTodos((todos) => {      
-            const newItem = createTaskItem(text, min, sec);
+        setTodos((todos) => {   
+            const arrayId = [];
+            todos.taskData.forEach((task) => arrayId.push(task.id));
+            const newId = arrayId.reduce((x, y) => Math.max(x, y));
+            const newItem = createTaskItem(text, min, sec, newId);
             const newArray = [...todos.taskData, newItem];
             return {...todos, taskData: newArray}
         })
@@ -119,18 +121,15 @@ function App({ updateInterval }) {
                     ...todos.taskData.slice(0, idx),
                     newItem,
                     ...todos.taskData.slice(idx + 1)];
-                todos = {...todos, 
-                    taskData: changeProperty(newArray, id, 'edit', false ),
-                    onEdition: false};
                 return ({...todos, 
                     taskData: changeProperty(newArray, id, 'edit', false ),
                     onEdition: false})
             } 
+
             return ({
                 ...todos,
                 taskData: changeProperty(todos.taskData, id, 'edit', false ),
                 onEdition: false })
-                
         })
     }
 
@@ -193,15 +192,17 @@ function App({ updateInterval }) {
     }
 	
     const stopWorkTimer = (id) => {
-        setTodos({
+        setTodos((todos) =>  ({
             ...todos,
-            taskData: changeProperty(todos.taskData, id, 'inWorking', false ) })
+            taskData: changeProperty(todos.taskData, id, 'inWorking', false ) })        
+        )
         taskTimer = setTimeout(() => {
             timerOn();
         }, 0);
     }
 
     const updateWorkTimer = () => {
+        const stoppingTasks = [];
         setTodos((todos) => {
             const newArr = todos.taskData.map((task) => {
                 const minutes = task.timeInWork.minutes;
@@ -210,8 +211,10 @@ function App({ updateInterval }) {
                 if (minutes === '00' && seconds === '00') {
                     newTask = { 
                         ...task, 
-                        inWorking: false 
-                    } 
+                        inWorking: false,
+                        timeInWork: {minutes: '00', seconds: '00'}, 
+                    };
+                    stoppingTasks.push(task.id);
                 } else if (task.inWorking) {
                     const d = new Date('01 January 00:00:00');
                     d.setMinutes(minutes, seconds); 
@@ -226,6 +229,9 @@ function App({ updateInterval }) {
                 }
                 return newTask;
             });
+            if (stoppingTasks.length > 0) { 
+                stoppingTasks.forEach((task) => stopWorkTimer(task))
+            }
             return {
                 ...todos,
                 taskData: newArr }});
@@ -249,7 +255,7 @@ function App({ updateInterval }) {
             newItem,
             ...arr.slice(idx + 1)];
     }
-
+    
     const doneCount = todos.taskData
         .filter((el) => el.done).length;
 			

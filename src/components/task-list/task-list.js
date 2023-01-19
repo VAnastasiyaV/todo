@@ -51,7 +51,6 @@ function TaskList({  tasks, onDeleted, onToggleDone,
         onItemEditiong(false, onEditiong);
     }
 
-    // eslint-disable-next-line no-use-before-define
     const handleClickOutside = (e) => {  	
         if (Number(e.target.id) !== Number(onEditiong)) {
             cancelLabelChange();
