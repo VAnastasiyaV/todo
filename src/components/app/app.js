@@ -8,9 +8,8 @@ import Footer from '../footer';
 
 function App({ updateInterval }) {
 
-    let maxId = 100;
+    const timerRef = useRef();
     let taskTimer = null;
-    // let timer;
 
     const createTaskItem = (label, min, sec) => ({
         label,
@@ -23,20 +22,10 @@ function App({ updateInterval }) {
         edit: false,
         done: false,
         filterAll: false,
-        id: maxId++,
+        id: Number(Math.ceil(Math.random() * 100000).toString().slice(2, )),
         inWorking: false,
         timeInWork: {minutes: min, seconds: sec},
     })    
-
-    // const initialState = useMemo(() => ({
-    //     taskData: [
-    //         createTaskItem('Completed task',1,1),
-    //         createTaskItem('Editing task',0,2),
-    //         createTaskItem('Active task',0,0),
-    //     ],
-    //     workTimerOn: false,
-    //     onEdition: false
-    // }), []);
 
     const [todos, setTodos] = useState({
         taskData: [
@@ -57,10 +46,6 @@ function App({ updateInterval }) {
         return () => clearInterval(workTimer);
     }, [todos.workTimerOn]);
 
-
-
-    const timerRef = useRef();
-    // создаем и стопаем таймер в любом месте
     const startTimer = useCallback(() => {
         timerRef.current = setInterval(() => {
             setTodos((todos) => {
@@ -84,15 +69,12 @@ function App({ updateInterval }) {
         return () => clearTimer();
     }, [ startTimer, clearTimer]);
 
-
-
     // useEffect(() => {
     //     timer = setInterval(() => updateTimer(), updateInterval);
     //     return () => clearInterval(timer);
     // }, [])
     
     useEffect(() => () => {
-        // clearInterval(timer);
         clearTimeout(taskTimer);
     }, [taskTimer])
     
@@ -113,20 +95,25 @@ function App({ updateInterval }) {
     };
 
     const deleteItem = (id) => {
-        const newArr = todos.taskData.filter((el) => el.id !== id)
-        setTodos({...todos, taskData: newArr})
+        setTodos((todos) => {
+            const newArr = todos.taskData.filter((el) => el.id !== id)
+            return {...todos, taskData: newArr}
+        })
+        
     }
 
     const addItem = (text, min, sec) => {
-        const newItem = createTaskItem(text, min, sec)
-        const newArray = [...todos.taskData, newItem]
-        setTodos({...todos, taskData: newArray})
+        setTodos((todos) => {      
+            const newItem = createTaskItem(text, min, sec);
+            const newArray = [...todos.taskData, newItem];
+            return {...todos, taskData: newArray}
+        })
     }
 
     const editItem = (text, id) => { 
         setTodos((todos) => {
             if (text) {
-                const idx = todos.taskData.findIndex((el) => el.id === Number(id));
+                const idx = todos.taskData.findIndex((el) => Number(el.id) === Number(id));
                 const newItem = { ...todos.taskData[idx], 'label': text, 'forInp': text };
                 const newArray = [
                     ...todos.taskData.slice(0, idx),
@@ -245,7 +232,7 @@ function App({ updateInterval }) {
     }
 
     const toggleProperty = (arr, id, propName) => {
-        const idx = arr.findIndex((el) => el.id === Number(id));
+        const idx = arr.findIndex((el) => Number(el.id) === Number(id));
         const oldItem = arr[idx];
         const newItem = { ...oldItem, [propName]: !oldItem[propName] };
         return [
@@ -262,21 +249,6 @@ function App({ updateInterval }) {
             newItem,
             ...arr.slice(idx + 1)];
     }
-	
-    // const updateTimer = () => {
-    //     setTodos((todos) => {
-    //         const newArr = todos.taskData.map((el) => {
-    //             const updetingTime = formatDistanceToNow(
-    //                 el.createdDate,
-    //             );
-    //             const newEl = { ...el, timeFromCreated: updetingTime };
-    //             return newEl;
-    //         });
-    //         return {
-    //             ...todos,
-    //             taskData: newArr }});
- 
-    // }
 
     const doneCount = todos.taskData
         .filter((el) => el.done).length;
