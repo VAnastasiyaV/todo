@@ -1,72 +1,76 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
 import './tasks-filter.css';
 
-export default class TasksFilter extends Component {
-    state = {
+function TasksFilter({ showingAll, showingActive, showingCompleted }) {
+
+    const [classNames, setClassNames] = useState({
         classNameAll: 'selected',
         classNameActive: '',
-        classNameCompleted: '',
-    }
+        classNameCompleted: ''
+    })
 
-    onClickBtnAll = () => {
-        this.setState({
+    const onClickBtnAll = () => {
+        setClassNames({
             classNameAll: 'selected',
             classNameActive: '',
             classNameCompleted: '',
         })
-        this.props.showingAll();
+        showingAll();
     }
 
-    onClickBtnActive = () => {
-        this.setState({
+    const onClickBtnActive = () => {
+        setClassNames({
             classNameAll: '',
             classNameActive: 'selected',
             classNameCompleted: '',
         })
-        this.props.showingActive();
+        showingActive();
     }
 
-    onClickBtnCompleted = () => {
-        this.setState({
+    const onClickBtnCompleted = () => {
+        setClassNames({
             classNameAll: '',
             classNameActive: '',
             classNameCompleted: 'selected',
         })
-        this.props.showingCompleted();
+        showingCompleted();
     }
 
-    render() {
-        return (
-            <ul className="filters">
-                <li>
-                    <button
-                        type="button"
-                        className={this.state.classNameAll}
-                        onClick={this.onClickBtnAll}
-                    >
-                        All
-                    </button>
-                </li>
-                <li>
-                    <button
-                        type="button"
-                        className={this.state.classNameActive}
-                        onClick={this.onClickBtnActive}
-                    >
-                        Active
-                    </button>
-                </li>
-                <li>
-                    <button
-                        type="button"
-                        className={this.state.classNameCompleted}
-                        onClick={this.onClickBtnCompleted}
-                    >
-                        Completed
-                    </button>
-                </li>
-            </ul>
-        )
-    }
+    return (
+        <ul className="filters">
+            <li>
+                <button
+                    type="button"
+                    className={classNames.classNameAll}
+                    onClick={onClickBtnAll}
+                >
+                    All
+                </button>
+            </li>
+            <li>
+                <button
+                    type="button"
+                    className={classNames.classNameActive}
+                    onClick={onClickBtnActive}
+                >
+                    Active
+                </button>
+            </li>
+            <li>
+                <button
+                    type="button"
+                    className={classNames.classNameCompleted}
+                    onClick={onClickBtnCompleted}
+                >
+                    Completed
+                </button>
+            </li>
+        </ul>
+    )
 }
+
+export default TasksFilter;
+
+
+

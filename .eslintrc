@@ -38,6 +38,8 @@
 		"prefer-destructuring": "off",
 		"indent": [2, 4
 		],
+		"no-use-before-define": "off",
+		"no-shadow": "off",
 		"react/prop-types": 0,
 		"react/jsx-indent": [
 			2,
