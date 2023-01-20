@@ -103,7 +103,7 @@ function App({ updateInterval }) {
 
     const addItem = (text, min, sec) => {
         setTodos((todos) => {   
-            const arrayId = [];
+            const arrayId = [100];
             todos.taskData.forEach((task) => arrayId.push(task.id));
             const newId = arrayId.reduce((x, y) => Math.max(x, y));
             const newItem = createTaskItem(text, min, sec, newId);
