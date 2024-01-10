@@ -1,12 +1,12 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+import { Draggable } from 'react-beautiful-dnd';
 
 import Timer from '../timer';
 import './task.css';
 
 function Task({ label, timeFromCreated, onDeleted,
     onToggleDone, done, onEditClick,
-    toWorkClick, toStopClick, ...itemProps }) {
+    toWorkClick, toStopClick, id, index, ...itemProps }) {
 
     let classNames = 'view';
 
@@ -15,42 +15,50 @@ function Task({ label, timeFromCreated, onDeleted,
     }
 
     return (
-        <div className={classNames}>
-            <label>
-                <input
-                    className="toggle"
-                    type="checkbox"
-                    onChange={onToggleDone}
-                />
-				
-                <span className="title">
-                    {label}
-                </span>
-            </label>
-            < Timer 
-                {...itemProps}
-                toWorkClick={toWorkClick}
-                toStopClick={toStopClick} 
-            />
-            <span className="created">
-                created
-                {' '}
-                {timeFromCreated}
-                {' '}
-                ago
-            </span>
-				
-            <button
-                type="button"
-                className="icon icon-edit"
-                onClick={onEditClick}
-            />
-            <button
-                type="button"
-                className="icon icon-destroy"
-                onClick={onDeleted}
-            />
-        </div>
+        <Draggable draggableId={`${id}`} index={index} key={id}>
+            {(provided) => (
+                <div 
+                    className={classNames}
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}>
+                    <label>
+                        <input
+                            className="toggle"
+                            type="checkbox"
+                            onChange={onToggleDone}
+                        />
+
+                        <span className="title">
+                            {label}
+                        </span>
+                    </label>
+                    < Timer 
+                        {...itemProps}
+                        toWorkClick={toWorkClick}
+                        toStopClick={toStopClick} 
+                    />
+                    <span className="created">
+                        created
+                        {' '}
+                        {timeFromCreated}
+                        {' '}
+                        ago
+                    </span>
+
+                    <button
+                        type="button"
+                        className="icon icon-edit"
+                        onClick={onEditClick}
+                    />
+                    <button
+                        type="button"
+                        className="icon icon-destroy"
+                        onClick={onDeleted}
+                    />
+                </div>
+            )}
+        </Draggable>
     )
 }
 

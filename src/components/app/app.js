@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { DragDropContext } from 'react-beautiful-dnd';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
 import './app.css';
@@ -34,7 +35,9 @@ function App({ updateInterval }) {
             createTaskItem('Active task',0,0,102),
         ],
         workTimerOn: false,
-        onEdition: false
+        onEdition: false,
+        onlyActive: false,
+        onlyCompleted: false,
     });
 
     useEffect(() => {
@@ -63,17 +66,13 @@ function App({ updateInterval }) {
      
         }, updateInterval);
     }, [timerRef, updateInterval]);
+
     const clearTimer = useCallback(() => clearInterval(timerRef.current), [timerRef]);
 
     useEffect(() => {
         startTimer();
         return () => clearTimer();
     }, [ startTimer, clearTimer]);
-
-    // useEffect(() => {
-    //     timer = setInterval(() => updateTimer(), updateInterval);
-    //     return () => clearInterval(timer);
-    // }, [])
     
     useEffect(() => () => {
         clearTimeout(taskTimer);
@@ -133,12 +132,6 @@ function App({ updateInterval }) {
         })
     }
 
-    const onToggleDone = (id) => {
-        setTodos({
-            ...todos,
-            taskData: toggleProperty(todos.taskData, id, 'done') })
-    };
-
     const editiongItem = (id) => {
         if (!todos.onEdition) {
             setTodos({
@@ -151,19 +144,25 @@ function App({ updateInterval }) {
     const showAll = () => {
         setTodos({
             ...todos,
-            taskData: showItems(todos.taskData, false, false) })
+            taskData: showItems(todos.taskData, false, false),
+            onlyActive: false, 
+            onlyCompleted: false  })
     };
 
     const showActive = () => {
-        setTodos({
-            ...todos,
-            taskData: showItems(todos.taskData, true, false) })
+        setTodos((todos) => ({...todos,
+            taskData: showItems(todos.taskData, true, false),
+            onlyActive: true, 
+            onlyCompleted: false 
+        }))
     };
 
     const showCompleted = () => {
-        setTodos({
-            ...todos,
-            taskData: showItems(todos.taskData, false, true) })
+        setTodos((todos) => ({...todos,
+            taskData: showItems(todos.taskData, false, true),
+            onlyActive: false,
+            onlyCompleted: true
+        }))
     };
 
     const showItems = (arr, status1, status2) => {
@@ -190,6 +189,14 @@ function App({ updateInterval }) {
             timerOn();
 		  }, 0);
     }
+
+    const onToggleDone = (id) => {
+        setTodos({
+            ...todos,
+            taskData: toggleProperty(todos.taskData, id, 'done') });
+        if(todos.onlyActive) showActive();
+        if(todos.onlyCompleted) showCompleted();
+    };
 	
     const stopWorkTimer = (id) => {
         setTodos((todos) =>  ({
@@ -208,12 +215,8 @@ function App({ updateInterval }) {
                 const minutes = task.timeInWork.minutes;
                 const seconds = task.timeInWork.seconds;
                 let newTask = [];
-                if (minutes === '00' && seconds === '00') {
-                    newTask = { 
-                        ...task, 
-                        inWorking: false,
-                        timeInWork: {minutes: '00', seconds: '00'}, 
-                    };
+                if (task.inWorking && minutes === '00' && seconds === '00') {
+                    newTask = task;
                     stoppingTasks.push(task.id);
                 } else if (task.inWorking) {
                     const d = new Date('01 January 00:00:00');
@@ -258,29 +261,43 @@ function App({ updateInterval }) {
     
     const doneCount = todos.taskData
         .filter((el) => el.done).length;
-			
+
+    const handleDragEnd = ({ destination, source, draggableId }) => {
+    	if (!destination || destination.droppableId === source.droppableId
+			&& destination.index === source.index) return;
+        const newTodos = [...todos.taskData];
+        // eslint-disable-next-line 
+        const toggledTodo = newTodos.filter((item) => item.id == draggableId)[0];
+        newTodos.splice(source.index,1);
+        newTodos.splice(destination.index,0,toggledTodo);
+        const taskData = newTodos;
+        setTodos({...todos, taskData})    
+    }
+
     return (
         <section className="todoapp">
             <NewTaskForm onItemAdded={addItem} />
-            <section className="main">
-                <TaskList
-                    onEditiong={todos.onEdition}
-                    tasks={todos.taskData}
-                    onDeleted={deleteItem}
-                    onToggleDone={onToggleDone}
-                    onEditClick={editiongItem}
-                    onItemEditiong={editItem}
-                    toWorkClick={startWorkTimer}
-                    toStopClick={stopWorkTimer}
-                />
-                <Footer
-                    done={doneCount}
-                    showingAll={showAll}
-                    showingActive={showActive}
-                    showingCompleted={showCompleted}
-                    clearingCompleted={clearCompleted}
-                />
-            </section>
+            <DragDropContext  onDragEnd={handleDragEnd}>
+                <section className="main">
+                    <TaskList
+                        onEditiong={todos.onEdition}
+                        tasks={todos.taskData}
+                        onDeleted={deleteItem}
+                        onToggleDone={onToggleDone}
+                        onEditClick={editiongItem}
+                        onItemEditiong={editItem}
+                        toWorkClick={startWorkTimer}
+                        toStopClick={stopWorkTimer}
+                    />
+                    <Footer
+                        done={doneCount}
+                        showingAll={showAll}
+                        showingActive={showActive}
+                        showingCompleted={showCompleted}
+                        clearingCompleted={clearCompleted}
+                    />
+                </section>
+            </DragDropContext>
         </section>
     )
 }
